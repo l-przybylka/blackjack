@@ -7,12 +7,28 @@
   box-sizing: border-box;
 }
 
+body {
+  background: green
+}
+
 /******************************************
 /* LAYOUT
 /*******************************************/
-
+.playArea {
+  display: flex;
+  justify-content: center;
+}
 
 
 /******************************************
 /* ADDITIONAL STYLES
 /*******************************************/
+
+.dealer {
+  width: 10%;
+  height: auto;
+}
+
+.cards {
+  width: 10%;
+}
