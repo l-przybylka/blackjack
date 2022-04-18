@@ -3,18 +3,26 @@ if(!(localStorage.getItem('deckID'))) {
       .then(res => res.json()) // parse response as JSON
       .then(data => {
         localStorage.setItem('deckID', data.deck_id)
-        console.log(data)
       })
       .catch(err => {
           console.log(`error ${err}`)
       })
     }
+
 if(!(localStorage.getItem('dealerScore'))) {
     localStorage.setItem('dealerScore', 0)
 }
 
 if(!(localStorage.getItem('playerScore'))) {
     localStorage.setItem('playerScore', 0)
+}
+
+if(!(localStorage.getItem('dealerCards'))) {
+    localStorage.setItem('dealerCards', [])
+}
+
+if(!(localStorage.getItem('playerCards'))) {
+    localStorage.setItem('playerCards', [])
 }
 
 document.getElementById('start').addEventListener('click', start)
@@ -24,10 +32,33 @@ function start() {
         .then(res => res.json()) // parse response as JSON
         .then(data => {
           console.log(data)
+          //Dealer
           document.querySelector('#cardDealer-1').src = data.cards[0].image
           document.querySelector('#cardDealer-2').src = data.cards[1].image
+
+          let dealerScore = convertToNum(data.cards[0].value) + convertToNum(data.cards[1].value)
+          localStorage.setItem('dealerScore', dealerScore)
+
+          let dealerCards = [data.cards[0].value, data.cards[1].value]
+          localStorage.setItem('dealerCards', dealerCards)
+            
+          //Player
           document.querySelector('#cardPlayer-1').src = data.cards[2].image
           document.querySelector('#cardPlayer-2').src = data.cards[3].image
+
+          let playerScore = convertToNum(data.cards[2].value) + convertToNum(data.cards[3].value)
+          localStorage.setItem('playerScore', playerScore)
+
+          let playerCards = [data.cards[2].value, data.cards[3].value]
+          localStorage.setItem('playerCards', playerCards)
+          
+          if(checkBlackjack(localStorage.playerCards)) {
+              if(checkBlackjack(localStorage.dealerCards)) {
+                  return alert("It's a tie")
+              }
+              return alert("BLACKJACK! You win!")
+          }
+
         })
         .catch(err => {
             console.log(`error ${err}`)
@@ -68,4 +99,10 @@ function convertToNum(val) {
       } else {
         return Number(val)
       }
+}
+
+function checkBlackjack(hand) {
+    if(hand.includes('ACE') && hand.includes('KING') || hand.includes('ACE') && hand.includes('QUEEN') || hand.includes('ACE') && hand.includes('JACK')) {
+        return true
+    }
 }
