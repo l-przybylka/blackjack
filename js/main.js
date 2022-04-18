@@ -42,7 +42,9 @@ function start() {
           console.log(data)
           //Dealer
           document.querySelector('#cardDealer-1').src = data.cards[0].image
+          document.querySelector('#cardDealer-1').style.display = 'inline'
           document.querySelector('#cardDealer-2').src = data.cards[1].image
+          document.querySelector('#cardDealer-2').style.display = 'inline'
 
           let dealerScore = convertToNum(data.cards[0].value) + convertToNum(data.cards[1].value)
           localStorage.setItem('dealerScore', dealerScore)
@@ -54,7 +56,9 @@ function start() {
             
           //Player
           document.querySelector('#cardPlayer-1').src = data.cards[2].image
+          document.querySelector('#cardPlayer-1').style.display = 'inline'
           document.querySelector('#cardPlayer-2').src = data.cards[3].image
+          document.querySelector('#cardPlayer-2').style.display = 'inline'
 
           let playerScore = convertToNum(data.cards[2].value) + convertToNum(data.cards[3].value)
           localStorage.setItem('playerScore', playerScore)
@@ -86,6 +90,7 @@ function hit() {
             let playerCount = Number(localStorage.playerCount) + 1
             localStorage.setItem('playerCount', playerCount)
             document.querySelector(`#cardPlayer-${Number(localStorage.playerCount)}`).src = data.cards[0].image
+            document.querySelector(`#cardPlayer-${Number(localStorage.playerCount)}`).style.display = 'inline'
             let playerScore = convertToNum(localStorage.playerScore) + convertToNum(data.cards[0].value)
             localStorage.setItem('playerScore', playerScore)
             if(localStorage.playerScore > 21) {
@@ -98,8 +103,7 @@ function hit() {
 document.getElementById('reset').addEventListener('click', reset)
 
 function reset() {
-    // hides all the cards, figure out how to show only the current cards in the game above.
-    // document.querySelectorAll('.cards').forEach(el => {el.style.display = 'none'})
+    document.querySelectorAll('.cards').forEach(el => {el.style.display = 'none'})
     fetch(`https://deckofcardsapi.com/api/deck/${localStorage.getItem('deckID')}/shuffle`)
         .then(res => res.json()) // parse response as JSON
         .then(data => {
