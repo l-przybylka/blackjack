@@ -47,9 +47,7 @@ document.getElementById('start').addEventListener('click', start)
 
 function start() {
  
-  if(localStorage.gameOn === 'true') {
-        alert("The game is already running")
-    } else {
+  if(localStorage.gameOn != 'true') {
     localStorage.setItem('gameOn', 'true')
     let bet = document.getElementById('betAmount').value
     if(bet != 0) {
@@ -83,10 +81,13 @@ function start() {
             
               if(checkBlackjack(localStorage.playerCards)) {
                   if(checkBlackjack(localStorage.dealerCards)) {
+                      localStorage.setItem('playerMoney', Number(money) + bet)
+                      localStorage.setItem('gameOn', 'false')
                       return alert("It's a tie")
                   }
-                  localStorage.setItem('playerMoney', Number(money) + (bet * 2))
+                  localStorage.setItem('playerMoney', Number(money) + (bet * 2.5))
                   document.getElementById('wallet').innerText = localStorage.playerMoney
+                  localStorage.setItem('gameOn', 'false')
                   return alert("BLACKJACK! You win!")
               }
 
@@ -95,9 +96,12 @@ function start() {
                 console.log(`error ${err}`)
              })
     } else {
+        localStorage.setItem('gameOn', 'false')
         alert('You need to place a bet')
 }
-} 
+} else {
+    alert("The game is already running")
+}
 }
 
 document.getElementById('hit').addEventListener('click', hit)
@@ -113,10 +117,37 @@ function hit() {
             let playerScore = convertToNum(localStorage.playerScore) + convertToNum(data.cards[0].value)
             localStorage.setItem('playerScore', playerScore)
             if(localStorage.playerScore > 21) {
+                localStorage.setItem('gameOn', 'false')
                 alert('Bust, you lose')
             }
         })
 }
+
+document.getElementById('stand').addEventListener('click', stand)
+
+function stand() {
+    // dealer is at least 17 in dealer score if not we need to draw an extra card or cards
+    // we need to compare the score against the dealer
+    // if player wins he gets 1.25 * bet 
+    for(let i = 0; i < 4; i++) {
+        if(Number(localStorage.dealerScore) < 17) {
+        fetch(`https://deckofcardsapi.com/api/deck/${localStorage.getItem('deckID')}/draw/?count=1`)
+        .then(res => res.json())
+        .then(data => {
+            let dealerCount = Number(localStorage.dealerCount) + 1
+            localStorage.setItem('dealerCount', dealerCount)
+            document.querySelector(`#cardDealer-${Number(localStorage.dealerCount)}`).src = data.cards[0].image
+            document.querySelector(`#cardDealer-${Number(localStorage.dealerCount)}`).style.display = 'inline'
+            let dealerScore = Number(localStorage.dealerScore) + convertToNum(data.cards[0].value)
+            localStorage.setItem('dealerScore', dealerScore)
+            console.log(localStorage.dealerScore)
+        })
+    } else {
+        return
+    }
+}
+}
+
 
 
 document.getElementById('reset').addEventListener('click', reset)
@@ -125,6 +156,7 @@ function reset() {
     document.querySelectorAll('.cards').forEach(el => {el.style.display = 'none'})
     localStorage.setItem('playerMoney', 5000)
     localStorage.setItem('gameOn', false)
+    localStorage.setItem('dealerScore', 0)
     document.getElementById('betAmount').value = ''
     document.getElementById('wallet').innerText = localStorage.playerMoney
     fetch(`https://deckofcardsapi.com/api/deck/${localStorage.getItem('deckID')}/shuffle`)
