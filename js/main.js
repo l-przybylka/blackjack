@@ -25,6 +25,14 @@ if(!(localStorage.getItem('playerCards'))) {
     localStorage.setItem('playerCards', [])
 }
 
+if(!(localStorage.getItem('dealerCount'))) {
+    localStorage.setItem('dealerCount', 0)
+}
+
+if(!(localStorage.getItem('playerCount'))) {
+    localStorage.setItem('playerCount', 0)
+}
+
 document.getElementById('start').addEventListener('click', start)
 
 function start() {
@@ -41,6 +49,8 @@ function start() {
 
           let dealerCards = [data.cards[0].value, data.cards[1].value]
           localStorage.setItem('dealerCards', dealerCards)
+
+          localStorage.setItem('dealerCount', 2)
             
           //Player
           document.querySelector('#cardPlayer-1').src = data.cards[2].image
@@ -51,6 +61,8 @@ function start() {
 
           let playerCards = [data.cards[2].value, data.cards[3].value]
           localStorage.setItem('playerCards', playerCards)
+
+          localStorage.setItem('playerCount', 2)
           
           if(checkBlackjack(localStorage.playerCards)) {
               if(checkBlackjack(localStorage.dealerCards)) {
@@ -71,7 +83,14 @@ function hit() {
     fetch(`https://deckofcardsapi.com/api/deck/${localStorage.getItem('deckID')}/draw/?count=1`)
         .then(res => res.json())
         .then(data => {
-            document.querySelector('#cardPlayer-3').src = data.cards[0].image
+            let playerCount = Number(localStorage.playerCount) + 1
+            localStorage.setItem('playerCount', playerCount)
+            document.querySelector(`#cardPlayer-${Number(localStorage.playerCount)}`).src = data.cards[0].image
+            let playerScore = convertToNum(localStorage.playerScore) + convertToNum(data.cards[0].value)
+            localStorage.setItem('playerScore', playerScore)
+            if(localStorage.playerScore > 21) {
+                alert('Bust, you lose')
+            }
         })
 }
 
