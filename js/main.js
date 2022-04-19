@@ -129,8 +129,10 @@ function stand() {
     // dealer is at least 17 in dealer score if not we need to draw an extra card or cards
     // we need to compare the score against the dealer
     // if player wins he gets 1.25 * bet 
-    for(let i = 0; i < 4; i++) {
-        if(Number(localStorage.dealerScore) < 17) {
+
+    // SELF NOTE: It looks like the while loop doesn't wait for the fetch to do it's thing, when localStorage.setItem('dealerScore', dealerScore) was inside of the fetch, causing loop to be infinite. Setting variable outside of the loop and then updating it outside of the fetch solved the problem
+    let dealerScore 
+        while(Number(localStorage.dealerScore) <= 17) {
         fetch(`https://deckofcardsapi.com/api/deck/${localStorage.getItem('deckID')}/draw/?count=1`)
         .then(res => res.json())
         .then(data => {
@@ -138,13 +140,11 @@ function stand() {
             localStorage.setItem('dealerCount', dealerCount)
             document.querySelector(`#cardDealer-${Number(localStorage.dealerCount)}`).src = data.cards[0].image
             document.querySelector(`#cardDealer-${Number(localStorage.dealerCount)}`).style.display = 'inline'
-            let dealerScore = Number(localStorage.dealerScore) + convertToNum(data.cards[0].value)
-            localStorage.setItem('dealerScore', dealerScore)
-            console.log(localStorage.dealerScore)
+            dealerScore = Number(localStorage.dealerScore) + convertToNum(data.cards[0].value)
+            
         })
-    } else {
-        return
-    }
+        localStorage.setItem('dealerScore', dealerScore)      
+
 }
 }
 
@@ -153,7 +153,7 @@ function stand() {
 document.getElementById('reset').addEventListener('click', reset)
 
 function reset() {
-    document.querySelectorAll('.cards').forEach(el => {el.style.display = 'none'})
+    document.querySelectorAll('.cards').forEach(el => {el.style.display = 'none'}) // IMPORTANT TO REMEMBER
     localStorage.setItem('playerMoney', 5000)
     localStorage.setItem('gameOn', false)
     localStorage.setItem('dealerScore', 0)
