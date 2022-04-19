@@ -41,15 +41,20 @@ if(!(localStorage.getItem('gameOn'))) {
     localStorage.setItem('gameOn', 'false')
 }
 
+if(!(localStorage.getItem('playerBet'))) {
+    localStorage.setItem('playerBet', '0')
+}
+
 document.getElementById('wallet').innerText = localStorage.playerMoney
 
 document.getElementById('start').addEventListener('click', start)
 
 function start() {
- 
+  document.querySelectorAll('.cards').forEach(el => {el.style.display = 'none'})
   if(localStorage.gameOn != 'true') {
     localStorage.setItem('gameOn', 'true')
-    let bet = document.getElementById('betAmount').value
+    localStorage.setItem('playerBet', document.getElementById('betAmount').value) 
+    let bet = localStorage.playerBet
     if(bet != 0) {
         let money = localStorage.playerMoney
         localStorage.setItem('playerMoney', money - bet)
@@ -107,6 +112,7 @@ function start() {
 document.getElementById('hit').addEventListener('click', hit)
 
 function hit() {
+    if(localStorage.gameOn === 'true') {
     fetch(`https://deckofcardsapi.com/api/deck/${localStorage.getItem('deckID')}/draw/?count=1`)
         .then(res => res.json())
         .then(data => {
@@ -118,21 +124,27 @@ function hit() {
             localStorage.setItem('playerScore', playerScore)
             if(localStorage.playerScore > 21) {
                 localStorage.setItem('gameOn', 'false')
+                document.getElementById("betAmount").innerText = ""
                 alert('Bust, you lose')
+                document.querySelectorAll('.cards').forEach(el => {el.style.display = 'none'})
             }
         })
+} else {
+    alert("The game isn't on")
+}
 }
 
 document.getElementById('stand').addEventListener('click', stand)
 
 function stand() {
-    // dealer is at least 17 in dealer score if not we need to draw an extra card or cards
-    // we need to compare the score against the dealer
-    // if player wins he gets 1.25 * bet 
+    // ADD OPTION TO TREAT ACE + FACE AS BLACKJACK INSTEAD OF 1
+
 
     // SELF NOTE: It looks like the while loop doesn't wait for the fetch to do it's thing, when localStorage.setItem('dealerScore', dealerScore) was inside of the fetch, causing loop to be infinite. Setting variable outside of the loop and then updating it outside of the fetch solved the problem
-    let dealerScore 
-        while(Number(localStorage.dealerScore) <= 17) {
+    let bet = localStorage.playerBet
+    let i = Number(localStorage.dealerScore)
+    let dealerScore = Number(localStorage.dealerScore)
+    while( i < 17) {
         fetch(`https://deckofcardsapi.com/api/deck/${localStorage.getItem('deckID')}/draw/?count=1`)
         .then(res => res.json())
         .then(data => {
@@ -141,13 +153,25 @@ function stand() {
             document.querySelector(`#cardDealer-${Number(localStorage.dealerCount)}`).src = data.cards[0].image
             document.querySelector(`#cardDealer-${Number(localStorage.dealerCount)}`).style.display = 'inline'
             dealerScore = Number(localStorage.dealerScore) + convertToNum(data.cards[0].value)
-            
+            localStorage.setItem('dealerScore', dealerScore)
         })
-        localStorage.setItem('dealerScore', dealerScore)      
-
+        i+=Number(localStorage.dealerScore)
 }
+    if(Number(dealerScore) > Number(localStorage.playerScore)) {
+        localStorage.setItem('gameOn', 'false')
+        alert("House wins")
+    } else if(Number(dealerScore) === Number(localStorage.playerScore)) {
+        localStorage.setItem('gameOn', 'false')
+        alert("It's a tie, bet returns")
+    } else if (Number(localStorage.playerScore) > Number(dealerScore)) {
+        localStorage.setItem('gameOn', 'false')
+        localStorage.setItem('playerMoney', Number(localStorage.playerMoney) + (bet * 2))
+        alert(`You win ${bet * 2}`)
+        
+        
+    }
+    document.getElementById('betAmount').value = ''
 }
-
 
 
 document.getElementById('reset').addEventListener('click', reset)
