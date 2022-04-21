@@ -139,7 +139,7 @@ document.getElementById('stand').addEventListener('click', stand)
 
 function stand() {
     // ADD OPTION TO TREAT ACE + FACE AS BLACKJACK INSTEAD OF 1
-
+    // 
 
     // SELF NOTE: It looks like the while loop doesn't wait for the fetch to do it's thing, when localStorage.setItem('dealerScore', dealerScore) was inside of the fetch, causing loop to be infinite. Setting variable outside of the loop and then updating it outside of the fetch solved the problem
     let bet = localStorage.playerBet
