@@ -50,8 +50,9 @@ document.getElementById('wallet').innerText = localStorage.playerMoney
 document.getElementById('start').addEventListener('click', start)
 
 function start() {
-  document.querySelectorAll('.cards').forEach(el => {el.style.display = 'none'})
+  
   if(localStorage.gameOn != 'true') {
+    document.querySelectorAll('.cards').forEach(el => {el.style.display = 'none'})
     localStorage.setItem('gameOn', 'true')
     localStorage.setItem('playerBet', document.getElementById('betAmount').value) 
     let bet = localStorage.playerBet
@@ -156,6 +157,7 @@ function stand() {
             localStorage.setItem('dealerScore', dealerScore)
         })
         i+=Number(localStorage.dealerScore)
+
 }
     if(Number(dealerScore) > Number(localStorage.playerScore)) {
         localStorage.setItem('gameOn', 'false')
