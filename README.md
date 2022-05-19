@@ -1,3 +1,3 @@
 # blackjack
 Simple blackjack game
-test? test
+19.05
